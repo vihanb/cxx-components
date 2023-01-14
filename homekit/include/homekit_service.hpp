@@ -41,6 +41,8 @@ public:
     virtual void writeCharacteristic(std::vector<WriteData> &writeData);
 
     const char *UUID() const;
+
+    Characteristic operator[](const char *UUID);
 };
 
 }

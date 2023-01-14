@@ -66,6 +66,9 @@ void Service::addCharacteristic(hap_char_t *characteristic) {
     }
 }
 
+Characteristic Service::operator[](const char *UUID) {
+    return getCharacteristic(UUID);
+}
 
 // Static Delegators
 int Service::readCallback(

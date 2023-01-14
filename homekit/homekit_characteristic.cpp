@@ -30,5 +30,9 @@ Value Characteristic::value() const {
     return Value(*hap_char_get_val(hapChar), hap_char_get_format(hapChar));
 }
 
+Characteristic& Characteristic::operator=(const Value &newValue) {
+    value(newValue);
+    return *this;
+}
 
 }

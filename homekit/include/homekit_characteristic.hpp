@@ -6,12 +6,12 @@ namespace HomeKit {
 
 class Characteristic {
 public:
+    hap_char_t *hapChar;
+
     Characteristic() = delete;
     Characteristic(hap_char_t *hapChar);
 
     static Characteristic fromUUID(const char *UUID);
-    
-    hap_char_t *hapChar;
 
     const char *typeUUID() const;
     bool isTypeUUID(const char *typeUUID) const;
@@ -19,6 +19,8 @@ public:
     hap_char_format_t format() const;
     void value(const Value &newValue) const;
     Value value() const;
+
+    Characteristic& operator=(const Value &newValue);
 };
 
 }
