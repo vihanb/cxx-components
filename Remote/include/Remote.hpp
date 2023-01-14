@@ -4,8 +4,18 @@
 
 namespace Remote {
 
-using Bit = std::pair<bool, uint32_t>;
+/**
+ * @brief A transmission symbol in us.
+ * Represents a boolean (HIGH or LOW) symbol for a specified
+ * amount of time in microseconds.
+ */
+using Symbol = std::pair<bool, uint32_t>;
 
+/**
+ * @brief Channel-specific transmission command.
+ * A sequence of symbols that has had its channel-specific
+ * time-to-tick conversion completed. 
+ */
 template<std::size_t Size>
 using CompiledCommand = std::array<rmt_item32_t, Size>;
 
@@ -16,15 +26,25 @@ private:
 
 public:
     Channel(gpio_num_t gpio);
-    Channel(Channel&&);
     virtual ~Channel();
 
     Channel() = delete;
+    Channel(Channel&&) = delete;
     Channel(const Channel&) = delete;
 
+    /**
+     * @brief Creates a CompiledCommand.
+     * If your command is well-known beforehand. Use this to
+     * avoid needing to allocate and compile a command every
+     * time it is executed.
+     * 
+     * @tparam Size 
+     * @param command unretained series of symbols.
+     * @return CompiledCommand<(Size + 1) / 2> 
+     */
     template<std::size_t Size>
     CompiledCommand<(Size + 1) / 2> toTickedCommand(
-        std::array<Bit, Size> command
+        std::array<Symbol, Size> command
     ) const {
         CompiledCommand<(Size + 1) / 2> res;
 

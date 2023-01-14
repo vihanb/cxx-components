@@ -38,6 +38,11 @@ Accessory::Accessory(
     debugIdentifier = name + " (serial: " + serial + ", cid: " + std::to_string(cid) + ")";
 }
 
+Accessory::Accessory(Accessory &&other)
+    : accessory(std::exchange(other.accessory, nullptr)),
+      debugIdentifier(std::move(other.debugIdentifier)),
+      services(std::move(other.services)) {}
+
 Accessory::~Accessory() {
     hap_acc_delete(accessory);
 }

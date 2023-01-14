@@ -10,7 +10,7 @@ namespace Command {
     constexpr uint32_t SHORT_TIME = 440;
     constexpr uint32_t LONG_TIME = 3 * 440;
 
-    using LaskoCommand = std::array<Bit, 25>;
+    using LaskoCommand = std::array<Symbol, 25>;
     constexpr LaskoCommand toLaskoSymbols(uint16_t command) {
         LaskoCommand symbols;
         symbols[0].first = 1;

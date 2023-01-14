@@ -36,9 +36,10 @@ public:
         const std::string &hwRev,
         hap_cid_t cid
     );
+    
+    Accessory(Accessory&&);
 
     Accessory() = delete;
-    Accessory(Accessory&&) = delete;
     Accessory(const Accessory&) = delete;
 
     ~Accessory();
