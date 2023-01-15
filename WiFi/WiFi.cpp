@@ -1,5 +1,4 @@
-#include "Wifi.hpp"
-
+#include "WiFi.hpp"
 #include <iostream>
 
 #include <esp_log.h>
@@ -12,32 +11,32 @@
 
 using namespace qrcode;
 
-static const char *TAG = "Wifi";
+static const char *TAG = "WiFi";
 
-Wifi::Wifi(const std::string &serviceName):
+WiFi::WiFi(const std::string &serviceName):
     serviceName(serviceName),
-    popSeed(esp_random()) {}
+    popSeed(esp_random()) {
+    wifiEventGroupHandle = xEventGroupCreateStatic(&wifiEventGroupData);
+}
 
-Wifi::~Wifi() {
-    ESP_LOGI(TAG, "Stopping Wifi module.");
-    vEventGroupDelete(wifi_event_group);
+WiFi::~WiFi() {
+    ESP_LOGI(TAG, "Stopping WiFi module.");
+    vEventGroupDelete(wifiEventGroupHandle);
 
     esp_wifi_deinit();
     esp_netif_deinit();
 }
 
-void Wifi::init() {
+void WiFi::init() {
     // Initialize network service
     ESP_ERROR_CHECK(esp_netif_init());
 
-    wifi_event_group = xEventGroupCreate();
-
     // Setup Wi-Fi handlers
     // TODO: potential leak, not unregistering handlers.
-    ESP_ERROR_CHECK(esp_event_handler_register(WIFI_PROV_EVENT, ESP_EVENT_ANY_ID, &Wifi::eventHandler, this));
-    ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &Wifi::eventHandler, this));
-    ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &Wifi::eventHandler, this));
-    ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_GOT_IP6, &Wifi::eventHandler, this));
+    ESP_ERROR_CHECK(esp_event_handler_register(WIFI_PROV_EVENT, ESP_EVENT_ANY_ID, &WiFi::eventHandler, this));
+    ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &WiFi::eventHandler, this));
+    ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &WiFi::eventHandler, this));
+    ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_GOT_IP6, &WiFi::eventHandler, this));
 
     // Initialize Wi-Fi including netif with default config
     // TODO: potential leak, never saved.
@@ -59,10 +58,10 @@ void Wifi::init() {
 
     // Initialize the provisioning manager.
     ESP_ERROR_CHECK(wifi_prov_mgr_init(config));
-    ESP_LOGI(TAG, "Successfully initialized Wifi module.");
+    ESP_LOGI(TAG, "Successfully initialized WiFi module.");
 }
 
-void Wifi::start() {
+void WiFi::start() {
     // Check if already provisioned
     bool provisioned = false;
     ESP_ERROR_CHECK(wifi_prov_mgr_is_provisioned(&provisioned));
@@ -89,22 +88,35 @@ void Wifi::start() {
     }
 
     wifi_prov_mgr_deinit();
-    ESP_LOGI(TAG, "Successfully started Wifi module.");
+
+    ESP_LOGI(TAG, "Waiting for WiFi to connect...");
+    xEventGroupWaitBits(wifiEventGroupHandle, BIT0, pdFALSE, pdTRUE, portMAX_DELAY);
+    ESP_LOGI(TAG, "Successfully started WiFi module.");
 }
 
-void Wifi::eventHandler(void *data, esp_event_base_t event_base, int32_t event_id, void* event_data) {
+void WiFi::handler(esp_event_base_t event_base, int32_t event_id, void* event_data) {
     if (event_base == IP_EVENT) {
         if (event_id == IP_EVENT_STA_GOT_IP) {
             ip_event_got_ip_t* event = (ip_event_got_ip_t*) event_data;
             ESP_LOGI(TAG, "Connected with IPv4 Address: " IPSTR, IP2STR(&event->ip_info.ip));
+            xEventGroupSetBits(wifiEventGroupHandle, BIT0);
         }
         if (event_id == IP_EVENT_GOT_IP6) {
             ip_event_got_ip6_t *event = (ip_event_got_ip6_t *)event_data;
             ESP_LOGI(TAG, "Connected with IPv6 Address: " IPV6STR, IPV62STR(event->ip6_info.ip));
+            xEventGroupSetBits(wifiEventGroupHandle, BIT0);
+        }
+
+        if (event_id == IP_EVENT_STA_LOST_IP) {
+            ESP_LOGD(TAG, "Lost IP Address.");
         }
     }
 
     if (event_base == WIFI_EVENT) {
+        if (event_id == WIFI_EVENT_STA_CONNECTED) {
+            ESP_LOGI(TAG, "Connection established to WiFi AP.");
+        }
+
         if (event_id == WIFI_EVENT_STA_START || event_id == WIFI_EVENT_STA_DISCONNECTED) {
             ESP_LOGI(TAG, "Connecting to Wi-Fi AP...");
             esp_wifi_connect();
@@ -112,7 +124,11 @@ void Wifi::eventHandler(void *data, esp_event_base_t event_base, int32_t event_i
     }
 }
 
-std::string Wifi::deviceName() {
+void WiFi::eventHandler(void *data, esp_event_base_t event_base, int32_t event_id, void* event_data) {
+    static_cast<WiFi *>(data)->handler(event_base, event_id, event_data);
+}
+
+std::string WiFi::deviceName() {
     // 8-bytes for type safety, but is likely only 6.
     uint8_t mac[8];
     esp_efuse_mac_get_default(mac);
@@ -126,14 +142,14 @@ std::string Wifi::deviceName() {
     return serviceName + " " + uniqueId;
 }
 
-std::string Wifi::pop() {
+std::string WiFi::pop() {
     char uniqueId[9];
     snprintf(uniqueId, sizeof(uniqueId), "%08x", popSeed);
 
     return std::string(uniqueId);
 }
 
-void Wifi::printQRCode() {
+void WiFi::printQRCode() {
     std::string payload = R"({"ver":"v1","name":")" + deviceName()
                     + R"(","pop":")" + pop()
                     + R"(","transport":"ble"})";

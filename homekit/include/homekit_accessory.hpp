@@ -9,14 +9,19 @@
 
 namespace HomeKit {
 
+class HomeKit;
+
 class Accessory {
 private:
     hap_acc_t *accessory;
     std::string debugIdentifier;
+    hap_cid_t _cid;
 
     std::vector<std::unique_ptr<Service>> services;
 
     static int identifyRoutine(hap_acc_t *acc);
+
+    friend class HomeKit;
 public:
     /**
      * @brief Construct a new Accessory object

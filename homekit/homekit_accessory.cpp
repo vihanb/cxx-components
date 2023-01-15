@@ -17,7 +17,7 @@ Accessory::Accessory(
     const std::string &fwRev,
     const std::string &hwRev,
     hap_cid_t cid
-) {
+) : _cid(cid) {
     hap_acc_cfg_t config = {
         .name = const_cast<char *>(name.c_str()),
         .model = const_cast<char *>(model.c_str()),
@@ -41,6 +41,7 @@ Accessory::Accessory(
 Accessory::Accessory(Accessory &&other)
     : accessory(std::exchange(other.accessory, nullptr)),
       debugIdentifier(std::move(other.debugIdentifier)),
+      _cid(std::move(other._cid)),
       services(std::move(other.services)) {}
 
 Accessory::~Accessory() {

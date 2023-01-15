@@ -3,11 +3,15 @@
 #include <esp_event.h>
 #include <freertos/event_groups.h>
 
-class Wifi {
+class WiFi {
+private:
     std::string serviceName;
     uint32_t popSeed;
-    EventGroupHandle_t wifi_event_group;
 
+    StaticEventGroup_t wifiEventGroupData;
+    EventGroupHandle_t wifiEventGroupHandle;
+
+    void handler(esp_event_base_t event_base, int32_t event_id, void* event_data);
     static void eventHandler(
         void *data,
         esp_event_base_t event_base,
@@ -16,8 +20,8 @@ class Wifi {
     void printQRCode();
 
 public:
-    explicit Wifi(const std::string &serviceName);
-    ~Wifi();
+    explicit WiFi(const std::string &serviceName);
+    ~WiFi();
 
     // Unique device name.
     std::string deviceName();
