@@ -1,13 +1,30 @@
 #pragma once
 #include <hap.h>
 #include <string>
+#include <esp_log.h>
 
 #include "homekit_value.hpp"
 
 namespace HomeKit {
 
 class Value {
-    static constexpr const char *formatToString(hap_char_format_t format);
+    static constexpr const char *formatToString(hap_char_format_t format) {
+        switch (format) {
+            case HAP_CHAR_FORMAT_NONE: return "None";
+            case HAP_CHAR_FORMAT_BOOL: return "bool";
+            case HAP_CHAR_FORMAT_UINT8: return "uint8_t";
+            case HAP_CHAR_FORMAT_UINT16: return "uint16_t";
+            case HAP_CHAR_FORMAT_UINT32: return "uint32_t";
+            case HAP_CHAR_FORMAT_UINT64: return "uint64_t";
+            case HAP_CHAR_FORMAT_INT: return "int";
+            case HAP_CHAR_FORMAT_FLOAT: return "float";
+            case HAP_CHAR_FORMAT_STRING: return "string";
+            case HAP_CHAR_FORMAT_TLV8: return "tlv8";
+            case HAP_CHAR_FORMAT_DATA: return "[[data]]";
+            default: return "[[unknown]]";
+        }
+    }
+
 public:
 
     const hap_val_t value;

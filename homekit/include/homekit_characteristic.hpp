@@ -11,13 +11,11 @@ public:
     Characteristic() = delete;
     Characteristic(hap_char_t *hapChar);
 
-    static Characteristic fromUUID(const char *UUID);
-
     const char *typeUUID() const;
     bool isTypeUUID(const char *typeUUID) const;
     
     hap_char_format_t format() const;
-    void value(const Value &newValue) const;
+    void value(const Value &newValue);
     Value value() const;
 
     Characteristic& operator=(const Value &newValue);

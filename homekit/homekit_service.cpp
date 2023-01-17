@@ -36,14 +36,13 @@ Service::Service(Service&& otherService)
 
 Service::~Service() {
     if (!service) return;
-    
-    hap_serv_set_read_cb(service, NULL);
-    hap_serv_set_write_cb(service, NULL);
 
     ESP_LOGI(TAG, "Service deleted (uuid: %s).", hap_serv_get_type_uuid(service));
+
+    hap_serv_delete(service);
 }
 
-hap_status_t Service::readCharacteristic(hap_char_t *characteristic) {
+hap_status_t Service::readCharacteristic(Characteristic &characteristic) {
     ESP_LOGD(TAG, "No service read callback provided.");
     return HAP_STATUS_SUCCESS; 
 }
@@ -78,7 +77,8 @@ int Service::readCallback(
     void *read_priv
 ) {
     Service *base = static_cast<Service *>(serv_priv);
-    *status_code = base->readCharacteristic(hc);
+    Characteristic characteristic { hc };
+    *status_code = base->readCharacteristic(characteristic);
     return HAP_SUCCESS;
 }
 

@@ -21,7 +21,7 @@ hap_char_format_t Characteristic::format() const {
     return hap_char_get_format(hapChar);
 }
 
-void Characteristic::value(const Value &newValue) const {
+void Characteristic::value(const Value &newValue) {
     newValue.validateAs(hap_char_get_format(hapChar));
     hap_char_update_val(hapChar, const_cast<hap_val_t *>(&newValue.value));
 }

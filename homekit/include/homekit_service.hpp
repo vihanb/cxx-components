@@ -37,7 +37,7 @@ public:
     void addCharacteristic(hap_char_t *characteristic);
     Characteristic getCharacteristic(const char *UUID);
 
-    virtual hap_status_t readCharacteristic(hap_char_t *characteristic);
+    virtual hap_status_t readCharacteristic(Characteristic &characteristic);
     virtual void writeCharacteristic(std::vector<WriteData> &writeData);
 
     const char *UUID() const;
