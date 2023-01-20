@@ -1,6 +1,7 @@
 #pragma once
 #include <driver/rmt.h>
 #include <unordered_map>
+#include <mutex>
 
 namespace Remote {
 
@@ -24,12 +25,16 @@ private:
     rmt_channel_t _channel;
     float _clockMHz;
 
+private:
+    static rmt_channel_t acquireChannel();
+    static void releaseChannel(rmt_channel_t channel);
+
 public:
-    Channel(gpio_num_t gpio);
+    explicit Channel(gpio_num_t gpio, rmt_channel_t channel = acquireChannel());
+    Channel(Channel&&) noexcept;
     virtual ~Channel();
 
     Channel() = delete;
-    Channel(Channel&&) = delete;
     Channel(const Channel&) = delete;
 
     /**

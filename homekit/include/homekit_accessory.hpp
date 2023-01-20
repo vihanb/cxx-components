@@ -51,6 +51,12 @@ public:
 
     void addService(Service *service);
 
+    template<class T, class... Args>
+    void addService(Args&&... args) {
+        Service *s = new T(std::forward<Args>(args)...);
+        addService(s);
+    }
+
     /**
      * Adds the accessory to HomeKit.
      */

@@ -15,13 +15,10 @@ static const char *TAG = "WiFi";
 
 WiFi::WiFi(const std::string &serviceName):
     serviceName(serviceName),
-    popSeed(esp_random()) {
-    wifiEventGroupHandle = xEventGroupCreateStatic(&wifiEventGroupData);
-}
+    popSeed(esp_random()) {}
 
 WiFi::~WiFi() {
     ESP_LOGI(TAG, "Stopping WiFi module.");
-    vEventGroupDelete(wifiEventGroupHandle);
 
     esp_wifi_deinit();
     esp_netif_deinit();
@@ -90,7 +87,7 @@ void WiFi::start() {
     wifi_prov_mgr_deinit();
 
     ESP_LOGI(TAG, "Waiting for WiFi to connect...");
-    xEventGroupWaitBits(wifiEventGroupHandle, BIT0, pdFALSE, pdTRUE, portMAX_DELAY);
+    wifiEventGroup.waitForAll(BIT0);
     ESP_LOGI(TAG, "Successfully started WiFi module.");
 }
 
@@ -99,12 +96,12 @@ void WiFi::handler(esp_event_base_t event_base, int32_t event_id, void* event_da
         if (event_id == IP_EVENT_STA_GOT_IP) {
             ip_event_got_ip_t* event = (ip_event_got_ip_t*) event_data;
             ESP_LOGI(TAG, "Connected with IPv4 Address: " IPSTR, IP2STR(&event->ip_info.ip));
-            xEventGroupSetBits(wifiEventGroupHandle, BIT0);
+            wifiEventGroup.setBits(BIT0);
         }
         if (event_id == IP_EVENT_GOT_IP6) {
             ip_event_got_ip6_t *event = (ip_event_got_ip6_t *)event_data;
             ESP_LOGI(TAG, "Connected with IPv6 Address: " IPV6STR, IPV62STR(event->ip6_info.ip));
-            xEventGroupSetBits(wifiEventGroupHandle, BIT0);
+            wifiEventGroup.setBits(BIT0);
         }
 
         if (event_id == IP_EVENT_STA_LOST_IP) {

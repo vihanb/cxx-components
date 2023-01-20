@@ -14,22 +14,20 @@ namespace Command {
     constexpr LaskoCommand toLaskoSymbols(uint16_t command) {
         LaskoCommand symbols;
         symbols[0].first = 1;
-        symbols[1].second = INITIAL_PULSE;
+        symbols[0].second = INITIAL_PULSE;
 
         for (int i = 0; i < 12; i++) {
-            if (command & 1) {
-                symbols[i * 2 + 0].first = 0;
-                symbols[i * 2 + 0].second = SHORT_TIME;
-                symbols[i * 2 + 1].first = 1;
-                symbols[i * 2 + 1].second = LONG_TIME;
+            if ((command >> (12 - i - 1)) & 1) {
+                symbols[1 + i * 2 + 0].first = 0;
+                symbols[1 + i * 2 + 0].second = SHORT_TIME;
+                symbols[1 + i * 2 + 1].first = 1;
+                symbols[1 + i * 2 + 1].second = LONG_TIME;
             } else {
-                symbols[i * 2 + 0].first = 0;
-                symbols[i * 2 + 0].second = LONG_TIME;
-                symbols[i * 2 + 1].first = 1;
-                symbols[i * 2 + 1].second = SHORT_TIME;
+                symbols[1 + i * 2 + 0].first = 0;
+                symbols[1 + i * 2 + 0].second = LONG_TIME;
+                symbols[1 + i * 2 + 1].first = 1;
+                symbols[1 + i * 2 + 1].second = SHORT_TIME;
             }
-
-            command >>= 1;
         }
 
         return symbols;
