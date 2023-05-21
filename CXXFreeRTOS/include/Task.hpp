@@ -13,7 +13,7 @@ private:
 
 protected:
     TaskHandle_t handle;
-    Task(const char *name, std::uint32_t stackSize = 4096, UBaseType_t priority = 5);
+    explicit Task(const char *name, UBaseType_t priority = 5, std::uint32_t stackSize = 4096);
 
 public:
     virtual ~Task();

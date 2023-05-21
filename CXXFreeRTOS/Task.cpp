@@ -2,10 +2,10 @@
 
 namespace FreeRTOS {
 
-Task::Task(const char *name, const std::uint32_t stackSize, UBaseType_t priority) {
+Task::Task(const char *name, UBaseType_t priority, const std::uint32_t stackSize) {
     xTaskCreate(
             &Task::taskCallback,
-            "Fan Controller Handler",
+            name,
             stackSize,
             this,
             priority,

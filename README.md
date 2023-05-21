@@ -3,7 +3,21 @@
 This is a number of CXX components for ESP-IDF which bridge C-based SDK
 APIs to have an easier CXX interface.
 
+### i2c
+
+This is a ergonomic C++ library for the ESP32's I2C interface. Slave support
+exists, but is very limited by the ESP32's hardware.
+
+To interact with I2C devices, construct a global instance of an `i2c::Master`.
+The master object can be used to perform I2C read/writes. It is recommended
+to construct `i2c::RegEntry` objects for code clarity.
+
+### spi
+
+This provides SPI master and slave capabilities.
+
 ### CXXFreeRTOS
+
 Adds RAII-friendly CXX APIs for FreeRTOS. For basic primitives use
 C++11 headers.
 
@@ -12,7 +26,8 @@ I can't use "FreeRTOS" due to a conflict. The namespace is still
 `::FreeRTOS`.
 
 ### WiFi
-A basic component to initialize WiFi and support WiFi provisioning. 
+
+A basic component to initialize WiFi and support WiFi provisioning.
 
 ### Remote
 
@@ -22,10 +37,10 @@ a few subclasses which already implement the interfaces for various remotes.
 
 ### homekit
 
-The HomeKit bridge is pretty straightforward to use, however it does
-require `esp-homekit-sdk` as an `EXTRA_COMPONENT`. One day I will figure
-out how to make this a subdependency of these components, but for now,
-clone in separately.
+A C++ library for making HomeKit accessories. If you use this, there are
+configuration parameters you might need to set to avoid getting build errors.
+Specifically, NimBLE should be enabled and some ESP devices may need other
+changes.
 
 ### qrcode
 
