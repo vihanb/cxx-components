@@ -1,8 +1,7 @@
 #include "MAX17043.hpp"
 #include <cmath>
 
-namespace i2c {
-namespace devices {
+namespace i2c::devices {
 
 MAX17043::MAX17043(Master &master, bool isMAX17044) : master_(master), isMAX17044_(isMAX17044) {}
 
@@ -18,9 +17,9 @@ float MAX17043::cellVoltage() {
     std::uint32_t vcell = (lsb >> 4) + (msb << 4);
 
     if (isMAX17044_) {
-        return vcell * 0.00250;
+        return vcell * 0.00250f;
     } else {
-        return vcell * 0.00125;
+        return vcell * 0.00125f;
     }
 }
 
@@ -31,5 +30,4 @@ float MAX17043::stateOfCharge() {
     return msb + (lsb / pow(2, 8));
 }
 
-} // i2c
 } // devices

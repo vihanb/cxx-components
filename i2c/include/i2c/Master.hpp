@@ -14,9 +14,6 @@ class Master final {
 public:
     template<std::size_t Size> using Buffer = std::array<std::uint8_t, Size>;
 
-    using Address = std::uint8_t;
-    using Register = std::uint8_t;
-
     explicit Master(i2c_config_t config);
     ~Master();
 
